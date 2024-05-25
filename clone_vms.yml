@@ -12,7 +12,7 @@
       - { node: "pc3", host: "192.168.10.30", templates: [ { id: "301", name: "Kali" } ] }
   tasks:
     - name: Clone VM templates for each student
-      kvm:
+      proxmox_kvm:
         api_user: "{{ api_user }}"
         api_password: "{{ api_password }}"
         api_host: "{{ item.host }}"
