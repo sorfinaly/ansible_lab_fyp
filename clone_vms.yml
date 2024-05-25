@@ -2,29 +2,30 @@
 - name: Clone VMs for students
   hosts: localhost
   vars:
-    proxmox_api_user: "root@pam"
-    proxmox_api_password: "adminpc1"  # Replace with actual password
-    proxmox_api_validate_certs: no
-    proxmox_nodes:
+    api_user: "root@pam"
+    api_token_id: "ansible_token"
+    api_token_secret: "16062f26-9521-49ce-93a8-b5fe0022f5c2"
+    api_host: "192.168.10.10"
+    api_validate_certs: no
+    nodes:
       - { node: "pc2", host: "192.168.10.20", templates: [ { id: "220", name: "Metasploitable2" }, { id: "100", name: "Win8" } ] }
       - { node: "pc3", host: "192.168.10.30", templates: [ { id: "301", name: "Kali" } ] }
   tasks:
     - name: Clone VM templates for each student
-      proxmox_kvm:
-        api_user: "{{ proxmox_api_user }}"
-        api_password: "{{ proxmox_api_password }}"
+      kvm:
+        api_user: "{{ api_user }}"
+        api_password: "{{ api_password }}"
         api_host: "{{ item.host }}"
-        api_validate_certs: "{{ proxmox_api_validate_certs }}"
+        api_validate_certs: "{{ api_validate_certs }}"
         node: "{{ item.node }}"
         clone: "{{ template.id }}"
         name: "student{{ student_id }}_{{ template.name }}"
         vmid: "{{ student_id }}{{ template.id }}"
         full_clone: false
         state: present
-        net0: virtio,bridge=vmbr0,firewall=1,ip=dhcp
       loop: "{{ item.templates }}"
       loop_control:
         loop_var: template
       vars:
         student_id: "{{ student_id }}"
-      with_items: "{{ proxmox_nodes }}"
+      with_items: "{{ nodes }}"
