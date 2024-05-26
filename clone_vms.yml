@@ -12,20 +12,24 @@
       - { node: "pc3", host: "192.168.10.30", templates: [ { id: "301", name: "Kali" } ] }
   tasks:
     - name: Clone VM templates for each student
-      proxmox_kvm:
-        api_user: "{{ api_user }}"
-        api_password: "{{ api_password }}"
-        api_host: "{{ item.host }}"
-        api_validate_certs: "{{ api_validate_certs }}"
-        node: "{{ item.node }}"
-        clone: "{{ template.id }}"
-        name: "student{{ student_id }}_{{ template.name }}"
-        vmid: "{{ student_id }}{{ template.id }}"
-        full_clone: false
-        state: present
-      loop: "{{ item.templates }}"
-      loop_control:
-        loop_var: template
+      block:
+        - name: Clone VM templates
+          proxmox_kvm:
+            api_user: "{{ api_user }}"
+            api_password: "{{ api_password }}"
+            api_host: "{{ item.host }}"
+            api_validate_certs: "{{ api_validate_certs }}"
+            node: "{{ item.node }}"
+            clone: "{{ template.id }}"
+            name: "student{{ student_id }}_{{ template.name }}"
+            vmid: "{{ student_id }}{{ template.id }}"
+            full_clone: false
+            state: present
+          loop: "{{ item.templates }}"
+          loop_control:
+            loop_var: template
+          vars:
+            student_id: "{{ student_id }}"
+          with_items: "{{ nodes }}"
       vars:
         student_id: "{{ student_id }}"
-      with_items: "{{ nodes }}"
